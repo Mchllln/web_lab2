@@ -1,0 +1,141 @@
+@model TicketFormViewModel
+@{
+    ViewData["Title"] = Model.PageTitle + " — CinemaApp";
+    bool readOnly = ViewBag.ReadOnly as bool? ?? false;
+    string formAction = Model.IsEdit ? "Edit" : "Create";
+}
+
+<div style="max-width:620px; margin:0 auto;">
+
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+        <a asp-action="Index" class="btn btn-outline btn-sm">← Back</a>
+        <h1 style="font-size:1.4rem; color:#e94560;">@Model.PageTitle</h1>
+        @if (readOnly)
+        {
+            <span style="background:#e9456020;color:#e94560;padding:.2rem .7rem;border-radius:12px;font-size:.75rem;font-weight:700;">VIEW ONLY</span>
+        }
+    </div>
+
+    @* Validation summary — shows friendly errors, never exposes a stack trace *@
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-error">
+            <strong>Please correct the following errors:</strong>
+            <div asp-validation-summary="ModelOnly"></div>
+        </div>
+    }
+
+    <div class="card">
+        <form asp-action="@formAction"
+              asp-route-id="@(Model.IsEdit ? Model.Ticket.Id.ToString() : null)"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            @if (Model.IsEdit)
+            {
+                <input type="hidden" asp-for="Ticket.Id" />
+            }
+
+            <div style="display:grid; gap:1.25rem;">
+
+                <div class="form-group">
+                    <label asp-for="Ticket.CustomerName">Customer Name</label>
+                    <input asp-for="Ticket.CustomerName"
+                           type="text"
+                           placeholder="e.g. Alice Johnson"
+                           readonly="@readOnly" />
+                    <span asp-validation-for="Ticket.CustomerName" class="field-validation-error"></span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label asp-for="Ticket.SeatNumber">Seat Number</label>
+                        <input asp-for="Ticket.SeatNumber"
+                               type="number"
+                               placeholder="1 – 500"
+                               readonly="@readOnly" />
+                        <span asp-validation-for="Ticket.SeatNumber" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Ticket.Price">Price ($)</label>
+                        <input asp-for="Ticket.Price"
+                               type="number"
+                               step="0.01"
+                               placeholder="0.00"
+                               readonly="@readOnly" />
+                        <span asp-validation-for="Ticket.Price" class="field-validation-error"></span>
+                    </div>
+                </div>
+
+                @*
+                    Lab requirement: auxiliary entity (Showtime) shown COMPLETELY on this page.
+                    Dropdown text: Movie Title | Start Time | Hall Name
+                *@
+                <div class="form-group">
+                    <label asp-for="Ticket.ShowtimeId">Showtime (Movie · Time · Hall)</label>
+                    @if (readOnly)
+                    {
+                        <input type="text"
+                               readonly="readonly"
+                               value="@(Model.ShowtimeOptions.FirstOrDefault(o => o.Selected)?.Text ?? string.Empty)" />
+                    }
+                    else
+                    {
+                        <select asp-for="Ticket.ShowtimeId" asp-items="Model.ShowtimeOptions">
+                            <option value="">— Select a showtime —</option>
+                        </select>
+                    }
+                    <span asp-validation-for="Ticket.ShowtimeId" class="field-validation-error"></span>
+                    <p style="font-size:.75rem;color:#555;margin-top:.3rem;">
+                        Format: Movie Title | DD.MM.YYYY HH:mm | Hall
+                    </p>
+                </div>
+
+                @if (!readOnly)
+                {
+                    <div style="display:flex; gap:1rem; margin-top:.5rem;">
+                        <button type="submit" class="btn btn-success">💾 @Model.SubmitLabel</button>
+                        <a asp-action="Index" class="btn btn-outline">Cancel</a>
+                    </div>
+                }
+                else
+                {
+                    <div style="display:flex; gap:1rem; margin-top:.5rem;">
+                        <a asp-action="Edit" asp-route-id="@Model.Ticket.Id" class="btn btn-primary">✏ Edit this Ticket</a>
+                        <a asp-action="Index" class="btn btn-outline">Back to List</a>
+                    </div>
+                }
+
+            </div>
+        </form>
+    </div>
+
+    @* Full Showtime detail card — only shown in view-only (Details) mode *@
+    @if (readOnly && Model.Ticket.Showtime is not null)
+    {
+        var s = Model.Ticket.Showtime;
+        <div class="card" style="margin-top:1.5rem; border-color:#1e3a2a;">
+            <h2 style="font-size:.95rem; color:#aaa; margin-bottom:1rem;">Showtime Details</h2>
+            <table style="font-size:.88rem;">
+                <tr>
+                    <td style="color:#555;padding:.35rem .8rem;width:130px;">Movie</td>
+                    <td style="padding:.35rem .8rem;font-weight:600;">@s.MovieTitle</td>
+                </tr>
+                <tr>
+                    <td style="color:#555;padding:.35rem .8rem;">Start Time</td>
+                    <td style="padding:.35rem .8rem;">@s.StartTime.ToString("dd.MM.yyyy HH:mm")</td>
+                </tr>
+                <tr>
+                    <td style="color:#555;padding:.35rem .8rem;">Hall</td>
+                    <td style="padding:.35rem .8rem;">@s.HallName</td>
+                </tr>
+                <tr>
+                    <td style="color:#555;padding:.35rem .8rem;">Showtime ID</td>
+                    <td style="padding:.35rem .8rem;color:#555;">#@s.Id</td>
+                </tr>
+            </table>
+        </div>
+    }
+
+</div>
