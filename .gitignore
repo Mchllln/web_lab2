@@ -1,0 +1,62 @@
+## .NET / ASP.NET Core gitignore
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# NuGet packages
+*.nupkg
+*.snupkg
+**/[Pp]ackages/
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+# MSBuild
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# SQLite database
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+
+# Published output
+**/publish/
+**/PublishProfiles/
+
+# Environment / secrets
+appsettings.*.json
+!appsettings.Development.json
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if any tooling)
+node_modules/
